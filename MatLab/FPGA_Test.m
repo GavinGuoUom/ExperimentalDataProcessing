@@ -9,7 +9,7 @@ filename = '/Test/Freq-11.csv'; % Frequency test 1
 Fs = 5000;
 T = 1/Fs;
 metadata = readmatrix(filename);
-L = size(data1, 1);
+L = size(metadata, 1);
 times = T*(1:1:L)';
 figure(1)
 plot(times, metadata(:, 2))
@@ -57,17 +57,7 @@ plot(Frq_n, Amp_n)
 % Frq_1(2:end-1,1) = 2*Frq_1(2:end-1,1);
 % ff = Fs*linspace(0,1/2, ll/2+1);
 
-function [frq, amp]=Freq_Amp(times, sig, dim)
-nn = size(times, dim);
-fs = 1/abs(times(2)-times(1));
-avr = mean(sig);
-sig = sig - avr;
-ft1 = fft(sig);
-amp = abs(ft1/nn);
-amp = amp(1:nn/2+1);
-amp(2:end-1) = amp(2:end-1)*2;
-frq = fs*linspace(0,1/2, nn/2+1);
-end
+
 
 % avr = sum(data1(2, :))/L;
 % sig = data1(2,:) - ones([1, L]) * avr;
