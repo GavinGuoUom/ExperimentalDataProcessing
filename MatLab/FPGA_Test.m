@@ -1,10 +1,10 @@
 % filename = '/Test/Rot-ac-healthy-03-30hz.csv';% 5kHz
-filename = '/Test/Freq-11.csv'; % Frequency test 1
+% filename = '/Test/Freq-11.csv'; % Frequency test 1
 % filename = '/Test/Freq-12.csv'; % Frequency test 2
 % filename = '/Test/Freq-13.csv'; % Frequency test 3
 % filename = '/Test/TestRot-Healthy-03.csv'; % Unhealthy test 1
 % filename = '/Test/Rot-Healthy-04-42hz.csv'; % Unhealthy test 2
-% filename = '/Test/Rot-ac-healthy-03-30hz.csv'; % Healthy test 1
+filename = '/Test/Rot-ac-healthy-03-30hz.csv'; % Healthy test 1
 % filename = '/Test/Rot-ac-healthy-04-42hz.csv'; % Healthy test 2
 Fs = 5000;
 T = 1/Fs;
@@ -17,7 +17,7 @@ hold on
 plot(times, metadata(:, 3), ':', 'LineWidth',0.25)
 
 % Choose data from whole time stream
-Use = 3;
+Use = 2;
 data1 = metadata(:, Use);
 duration = 3;
 FStart = times(data1==max(data1))-0.05; % select start
