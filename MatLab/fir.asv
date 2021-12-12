@@ -1,0 +1,66 @@
+clear
+clc
+% filename = '/Test/Rot-ac-healthy-03-30hz.csv';% 5kHz
+% filename = '/Test/Freq-11.csv'; % Frequency test 1
+filename = '/Test/Freq-12.csv'; % Frequency test 2
+% filename = '/Test/Freq-13.csv'; % Frequency test 3
+% filename = '/Test/TestRot-Healthy-03.csv'; % Unhealthy test 1
+% filename = '/Test/Rot-Healthy-04-42hz.csv'; % Unhealthy test 2
+% filename = '/Test/Rot-ac-healthy-03-30hz.csv'; % Healthy test 1
+% filename = '/Test/Rot-ac-healthy-04-42hz.csv'; % Healthy test 2
+Fc = 5; % cutoff frequency
+Fs = 5000; % sampling frequency
+Fss = Fs /2; %
+T = 1/Fs;
+metadata = readmatrix(filename);
+L = size(metadata, 1);
+times = T*(1:1:L)';
+% Choose data from whole time stream
+Use = 3;
+data1 = metadata(:, Use);
+duration = 3;
+FStart = times(data1==max(data1))-0.05; % select start
+FEnd = FStart + duration; % select end time
+data_slc = data1(times<FEnd&times>FStart);
+times_slc = times(times<FEnd&times>FStart) ;
+ll = size(data_slc, 1);
+avr = mean(data_slc);
+data_slc = data_slc - avr; % eliminate bias
+% Plot this data and its FFT curve
+figure(1)
+subplot(2,1,1);
+hold off
+plot(times_slc, data_slc, 'LineStyle','-', 'LineWidth',0.5, 'Color', 'g')
+hold on
+subplot(2,1,2);
+hold off
+[Frq_1, Amp_1, Ftt_1] = Freq_Amp(times_slc, data_slc, 1);
+loglog(Frq_1, Amp_1, 'LineStyle','-', 'LineWidth',0.5, 'Color', 'g')
+hold on
+
+% design a butterworth filter
+Win=1000;
+winfir = fir1(Win, Fc/Fss, 'high', kaiser(Win+1,2.5));
+sos2 = tf2sos(winfir, 1);
+fvtool(sos2,'Analysis','freq', 'Fs', Fs) % visualize the filter properties
+
+% using filter and plot the filtered signal
+filter_sig = filter(winfir, 1, data_slc);
+figure(1)
+subplot(2,1,1);
+plot(times_slc, filter_sig, 'Color','r','LineStyle',':', 'LineWidth', 0.2);
+[Frq_f, Amp_f, Ftt_f] = Freq_Amp(times_slc, filter_sig, 1);
+subplot(2,1,2);
+loglog(Frq_f, Amp_f, 'Color','r','LineStyle',':', 'LineWidth',0.2)
+savefig('FFT.fig');
+
+save Frq_f Frq_f;
+save Ftt_f Ftt_f;
+save Amp_f Amp_f;
+
+impulse = 10*(times_slc==2.719);
+% winlen = size(times_slc, 1);
+[frf, freq_l] = modalfrf(impulse, filter_sig, Fs, ll);
+
+
+

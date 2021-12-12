@@ -8,16 +8,17 @@ filename = '/Test/Freq-12.csv'; % Frequency test 2
 % filename = '/Test/Rot-Healthy-04-42hz.csv'; % Unhealthy test 2
 % filename = '/Test/Rot-ac-healthy-03-30hz.csv'; % Healthy test 1
 % filename = '/Test/Rot-ac-healthy-04-42hz.csv'; % Healthy test 2
-Fc = 30; % cutoff frequency
+Fc = 5; % cutoff frequency
 Fs = 5000; % sampling frequency
 Fss = Fs /2; %
 T = 1/Fs;
+ca = 0.1286;
 metadata = readmatrix(filename);
 L = size(metadata, 1);
 times = T*(1:1:L)';
 % Choose data from whole time stream
 Use = 3;
-data1 = metadata(:, Use);
+data1 = metadata(:, Use)*ca; % accelerate data
 duration = 3;
 FStart = times(data1==max(data1))-0.05; % select start
 FEnd = FStart + duration; % select end time
@@ -29,28 +30,41 @@ data_slc = data_slc - avr; % eliminate bias
 % Plot this data and its FFT curve
 figure(1)
 subplot(2,1,1);
-plot(times_slc, data_slc, 'LineStyle','-', 'LineWidth',0.5, 'Color', 'g')
+hold off
+plot(times_slc, data_slc, 'LineStyle','-', 'LineWidth',0.5, 'Color', 'g', 'DisplayName', 'Original')
 hold on
 subplot(2,1,2);
-[Frq_1, Amp_1] = Freq_Amp(times_slc, data_slc, 1);
-plot(Frq_1, Amp_1, 'LineStyle','-', 'LineWidth',0.5, 'Color', 'g')
+hold off
+[Frq_1, Amp_1, Ftt_1] = Freq_Amp(times_slc, data_slc, 1);
+loglog(Frq_1, Amp_1, 'LineStyle','-', 'LineWidth',1, 'Color', 'g', 'DisplayName', 'Original')
 hold on
 
 % design a butterworth filter
-
-winfir = fir1(51, Fc/Fss, 'high');
-[z,p,k] = butter(8, Fc/Fss, 'high');
+Win=1000;
+winfir = fir1(Win, Fc/Fss, 'high', kaiser(Win+1,2.5));
 sos2 = tf2sos(winfir, 1);
-sos = zp2sos(z, p, k);
-fvtool(sos,'Analysis','freq')
-% fvtool(sos2,'Analysis','freq')
-[b, a] = zp2tf(z, p, k);
-filter_sig = filter(b, a, data_slc);
+fvtool(sos2,'Analysis','freq', 'Fs', Fs) % visualize the filter properties
+
+% using filter and plot the filtered signal
+filter_sig = filter(winfir, 1, data_slc);
 figure(1)
 subplot(2,1,1);
-plot(times_slc, filter_sig, 'Color','r','LineStyle',':', 'LineWidth', 0.2);
-hold on
-[Frq_f, Amp_f] = Freq_Amp(times_slc, filter_sig, 1);
+plot(times_slc, filter_sig, 'Color','r','LineStyle',':', 'LineWidth', 0.5, 'DisplayName', 'Filtered');
+xlabel('Time(s)')
+ylabel('Accelerate(m/s^2)')
+legend
+hold off
+[Frq_f, Amp_f, Ftt_f] = Freq_Amp(times_slc, filter_sig, 1);
 subplot(2,1,2);
-plot(Frq_f, Amp_f, 'Color','r','LineStyle',':', 'LineWidth',0.2)
-hold on
+loglog(Frq_f, Amp_f, 'Color','r','LineStyle',':', 'LineWidth',0.5, 'DisplayName', 'Filtered')
+xlabel('Frequency (Hz)')
+ylabel('$H(\omega)$','Interpreter','latex')
+legend
+hold off
+savefig('./Figures/FFT.fig');
+
+
+
+
+
+
