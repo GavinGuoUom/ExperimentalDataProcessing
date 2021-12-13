@@ -2,7 +2,7 @@ clear
 clc
 % filename = '/Test/Rot-ac-healthy-03-30hz.csv';% 5kHz
 % filename = '/Test/Freq-11.csv'; % Frequency test 1
-filename = '/Test/Freq-12.csv'; % Frequency test 2
+% filename = '/Test/Freq-12.csv'; % Frequency test 2
 % filename = '/Test/Freq-13.csv'; % Frequency test 3
 % filename = '/Test/TestRot-Healthy-03.csv'; % Unhealthy test 1
 % filename = '/Test/Rot-Healthy-04-42hz.csv'; % Unhealthy test 2
@@ -12,13 +12,14 @@ Fc = 5; % cutoff frequency
 Fs = 5000; % sampling frequency
 Fss = Fs /2; %
 T = 1/Fs;
-ca = 0.1286;
-metadata = readmatrix(filename);
+load ./Data/cal.mat cal
+% ca = 0.1286;
+load ./Data/metadata_test.mat metadata
 L = size(metadata, 1);
 times = T*(1:1:L)';
 % Choose data from whole time stream
 Use = 3;
-data1 = metadata(:, Use)*ca; % accelerate data
+data1 = metadata(:, Use)*cal; % accelerate data
 duration = 3;
 FStart = times(data1==max(data1))-0.05; % select start
 FEnd = FStart + duration; % select end time

@@ -22,12 +22,17 @@ legend
 % xlabel('Time(s)')
 ylabel('12-bit ADC Amplitute')
 subplot(2,1,2)
-plot(times, metadata(:, 3)./metadata(:, 2))
+rate = metadata(:, 3)./metadata(:, 2);
+plot(times, rate)
 xlabel('Time(s)')
 ylabel('Gain')
 hold off
 savefig('./Figures/Datacollection.fig')
 saveas(figure1, './Figures/DAQ1.png')
+% Analyse the gain rate, is it out of range?
+rate_mean = mean(rate);
+
+%
 
 % Choose data from whole time stream
 Use = 3;
